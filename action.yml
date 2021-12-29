@@ -4,7 +4,8 @@ inputs:
   from-branch:
     description: "The source branch"
     required: true
-  to-branch: "The target branch"
+  to-branch: 
+    description: "The target branch"
     required: true
   merge-type:
     description: "The type of the merge: `merge`, `rebase`, `squash`"
