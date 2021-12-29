@@ -34,13 +34,13 @@ runs:
         git config user.name "${{ inputs.committer-name }}"
         git config user.email "${{ inputs.committer-email }}"
     - name: "Merge commit"
-      if: ${{ inputs.merge-type == "merge" }}
+      if: ${{ inputs.merge-type == 'merge' }}
       shell: bash
       run: |
         git checkout ${{ inputs.to-branch }}
         git merge --no-ff -m "${{ inputs.merge-commit-message }}"
     - name: "Rebase"
-      if: ${{ inputs.merge-type == "rebase" }}
+      if: ${{ inputs.merge-type == 'rebase' }}
       shell: bash
       run: |
         git checkout ${{ inputs.from-branch }}
@@ -48,14 +48,14 @@ runs:
         git checkout ${{ inputs.to-branch }}
         git merge --ff-only ${{ inputs.from-branch }}
     - name: "Squash"
-      if: ${{ inputs.merge-type == "squash" }}
+      if: ${{ inputs.merge-type == 'squash' }}
       shell: bash
       run: |
         git checkout ${{ inputs.to-branch }}
         git merge --squash ${{ inputs.from-branch }}
         git commit -m "${{ inputs.merge-commit-message }}"
     - name: "Invalid merge type"
-      if: ${{ inputs.merge-type != "merge" && inputs.merge-type != "rebase" && inputs.merge-type != "squash" }}
+      if: ${{ inputs.merge-type != 'merge' && inputs.merge-type != 'rebase' && inputs.merge-type != 'squash' }}
       shell: bash
       run: exit 1;
     - name: "Push changes"
