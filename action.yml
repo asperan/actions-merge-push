@@ -1,0 +1,57 @@
+name: "Merge and push"
+description: "This action merge two branches and push the result into the repository"
+inputs:
+  from-branch:
+    description: "The source branch"
+    required: true
+  to-branch: "The target branch"
+    required: true
+  merge-type:
+    description: "The type of the merge: `merge`, `rebase`, `squash`"
+    required: false
+    default: "merge"
+  merge-commit-message:
+    description: "The message for the merge commit. With `rebase` it is not used."
+    required: false
+    default: "ci: merge branches"
+  committer-name:
+    description: "The name of the committer"
+    required: false
+    default: "github-actions"
+  committer-email:
+    description: "The email of the committer"
+    required: false
+    default: "github-actions@github.com"
+
+runs:
+  using: "composite"
+  steps:
+    - uses: danysk/action-checkout@0.2.1
+    - name: "Configure environment"
+      run: |
+        git config user.name "${{ inputs.committer-name }}"
+        git config user.email "${{ inputs.committer-email }}"
+    - name: "Merge commit"
+      if: ${{ inputs.merge-type == "merge" }}
+      run: |
+        git checkout ${{ inputs.to-branch }}
+        git merge --no-ff -m "${{ inputs.merge-commit-message }}"
+    - name: "Rebase"
+      if: ${{ inputs.merge-type == "rebase" }}
+      run: |
+        git checkout ${{ inputs.from-branch }}
+        git rebase ${{ inputs.to-branch }}
+        git checkout ${{ inputs.to-branch }}
+        git merge --ff-only ${{ inputs.from-branch }}
+    - name: "Squash"
+      if: ${{ inputs.merge-type == "squash" }}
+      run: |
+        git checkout ${{ inputs.to-branch }}
+        git merge --squash ${{ inputs.from-branch }}
+        git commit -m "${{ inputs.merge-commit-message }}"
+    - name: "Invalid merge type"
+      if: ${{ inputs.merge-type != "merge" && inputs.merge-type != "rebase" && inputs.merge-type != "squash" }}
+      run: exit 1;
+    - name: "Push changes"
+      run: |
+        git push
